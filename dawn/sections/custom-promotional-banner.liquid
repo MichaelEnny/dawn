@@ -1,0 +1,147 @@
+{{ 'custom-sections.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="custom-promo-banner color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width custom-promo-banner__inner">
+    {%- if section.settings.badge_text != blank -%}
+      <span class="custom-promo-banner__badge">{{ section.settings.badge_text | escape }}</span>
+    {%- endif -%}
+
+    {%- if section.settings.title != blank -%}
+      <h2 class="custom-promo-banner__title {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+        {{ section.settings.title }}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.settings.text != blank -%}
+      <p class="custom-promo-banner__text{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+        {{ section.settings.text | escape }}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank -%}
+      <a
+        href="{{ section.settings.button_link | default: '#' }}"
+        class="custom-promo-banner__button button{% if section.settings.button_style_secondary %} button--secondary{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+        {% if section.settings.button_link == blank %}
+          aria-disabled="true"
+        {% endif %}
+      >
+        {{ section.settings.button_label | escape }}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Promotional Banner",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "info": "Small pill label above the heading (e.g. \"Sale\", \"New Arrivals\")"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Limited Time Offer",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1",
+      "label": "Heading size"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Subtext",
+      "default": "Shop our latest deals and save big on your favorite products."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_style_secondary",
+      "label": "Use outline button style",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promotional Banner",
+      "settings": {
+        "badge_text": "Sale",
+        "title": "Limited Time Offer",
+        "text": "Shop our latest deals and save big on your favorite products.",
+        "button_label": "Shop Now"
+      }
+    }
+  ]
+}
+{% endschema %}

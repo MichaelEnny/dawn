@@ -1,0 +1,257 @@
+{{ 'custom-sections.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="custom-product-highlights page-width section-{{ section.id }}-padding">
+
+    {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
+      <div class="custom-product-highlights__header">
+        {%- if section.settings.title != blank -%}
+          <h2 class="custom-product-highlights__title {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+            {{ section.settings.title }}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="custom-product-highlights__subtitle{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+            {{ section.settings.subtitle | escape }}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="custom-product-highlights__grid list-unstyled" role="list">
+        {%- for block in section.blocks -%}
+          {%- assign highlight_product = block.settings.product -%}
+          <li
+            class="custom-product-highlights__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+            {{ block.shopify_attributes }}
+            {% if settings.animations_reveal_on_scroll %}
+              data-cascade
+              style="--animation-order: {{ forloop.index }};"
+            {% endif %}
+          >
+            <div class="custom-product-highlights__card">
+              {%- if block.settings.badge_label != blank -%}
+                <span class="custom-product-highlights__badge" aria-label="{{ block.settings.badge_label | escape }}">
+                  {{ block.settings.badge_label | escape }}
+                </span>
+              {%- endif -%}
+
+              <div class="custom-product-highlights__image-wrapper">
+                {%- if highlight_product != blank and highlight_product.featured_image -%}
+                  <a href="{{ highlight_product.url }}" aria-label="{{ highlight_product.title | escape }}" tabindex="-1">
+                    <img
+                      src="{{ highlight_product.featured_image | image_url: width: 600 }}"
+                      srcset="
+                        {{ highlight_product.featured_image | image_url: width: 300 }} 300w,
+                        {{ highlight_product.featured_image | image_url: width: 600 }} 600w,
+                        {{ highlight_product.featured_image | image_url: width: 900 }} 900w
+                      "
+                      sizes="(min-width: 990px) calc((100vw - 13rem) / 3), (min-width: 750px) calc((100vw - 10rem) / 2), calc(100vw - 3.2rem)"
+                      alt="{{ highlight_product.featured_image.alt | default: highlight_product.title | escape }}"
+                      width="600"
+                      height="{{ 600 | divided_by: highlight_product.featured_image.aspect_ratio | ceil }}"
+                      loading="lazy"
+                      class="custom-product-highlights__image"
+                    >
+                  </a>
+                {%- else -%}
+                  <div class="custom-product-highlights__image-placeholder">
+                    {{ 'product-apparel-2' | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                {%- endif -%}
+              </div>
+
+              <div class="custom-product-highlights__info">
+                {%- if highlight_product != blank -%}
+                  <h3 class="custom-product-highlights__product-title">
+                    <a href="{{ highlight_product.url }}">{{ highlight_product.title | escape }}</a>
+                  </h3>
+                  <div class="custom-product-highlights__price">
+                    {% render 'price', product: highlight_product, price_class: '' %}
+                  </div>
+                {%- else -%}
+                  <h3 class="custom-product-highlights__product-title">Select a product</h3>
+                {%- endif -%}
+
+                {%- if block.settings.feature_text != blank -%}
+                  <p class="custom-product-highlights__feature-text">{{ block.settings.feature_text | escape }}</p>
+                {%- endif -%}
+
+                {%- if highlight_product != blank -%}
+                  <a
+                    href="{{ highlight_product.url }}"
+                    class="custom-product-highlights__cta button button--secondary"
+                  >
+                    {{ block.settings.cta_label | default: 'View Product' | escape }}
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.view_all_label != blank and section.settings.view_all_link != blank -%}
+      <div class="center" style="margin-top: 4rem;">
+        <a href="{{ section.settings.view_all_link }}" class="button button--secondary">
+          {{ section.settings.view_all_label | escape }}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product Highlights",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 6,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Staff Picks",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1",
+      "label": "Heading size"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Handpicked by our team"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "\"View all\" button label",
+      "info": "Leave blank to hide the button"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "\"View all\" link"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "badge_label",
+          "label": "Badge label",
+          "info": "e.g. \"Best Seller\", \"New\", \"Staff Pick\", \"Limited Edition\""
+        },
+        {
+          "type": "text",
+          "id": "feature_text",
+          "label": "Feature description",
+          "info": "One line highlighting a key benefit or feature"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Button label",
+          "default": "View Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Highlights",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "badge_label": "Best Seller",
+            "cta_label": "View Product"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "badge_label": "New",
+            "cta_label": "View Product"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "badge_label": "Staff Pick",
+            "cta_label": "View Product"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
