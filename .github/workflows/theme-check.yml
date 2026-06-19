@@ -1,0 +1,25 @@
+name: Shopify Theme Check
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  theme-check:
+    name: Validate Liquid with Theme Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Shopify Theme Check
+        uses: Shopify/theme-check-action@v2
+        with:
+          theme_root: ./dawn
